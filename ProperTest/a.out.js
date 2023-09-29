@@ -369,9 +369,6 @@ function assert(condition, text) {
 
 // We used to include malloc/free by default in the past. Show a helpful error in
 // builds with assertions.
-function _malloc() {
-  abort("malloc() called but not included in the build - add '_malloc' to EXPORTED_FUNCTIONS");
-}
 function _free() {
   // Show a helpful error since we used to include free by default in the past.
   abort("free() called but not included in the build - add '_free' to EXPORTED_FUNCTIONS");
@@ -1426,6 +1423,47 @@ function dbg(text) {
         return ccall(ident, returnType, argTypes, arguments, opts);
       }
     };
+
+  var ALLOC_NORMAL = 0;
+  
+  var ALLOC_STACK = 1;
+  
+  var allocate = (slab, allocator) => {
+      var ret;
+      assert(typeof allocator == 'number', 'allocate no longer takes a type argument')
+      assert(typeof slab != 'number', 'allocate no longer takes a number as arg0')
+  
+      if (allocator == ALLOC_STACK) {
+        ret = stackAlloc(slab.length);
+      } else {
+        ret = _malloc(slab.length);
+      }
+  
+      if (!slab.subarray && !slab.slice) {
+        slab = new Uint8Array(slab);
+      }
+      HEAPU8.set(slab, ret);
+      return ret;
+    };
+
+  
+  /** @type {function(string, boolean=, number=)} */
+  function intArrayFromString(stringy, dontAddNull, length) {
+    var len = length > 0 ? length : lengthBytesUTF8(stringy)+1;
+    var u8array = new Array(len);
+    var numBytesWritten = stringToUTF8Array(stringy, u8array, 0, u8array.length);
+    if (dontAddNull) u8array.length = numBytesWritten;
+    return u8array;
+  }
+
+  
+  
+  var stringToNewUTF8 = (str) => {
+      var size = lengthBytesUTF8(str) + 1;
+      var ret = _malloc(size);
+      if (ret) stringToUTF8(str, ret, size);
+      return ret;
+    };
 function checkIncomingModuleAPI() {
   ignoredModuleProp('fetchSettings');
 }
@@ -1449,6 +1487,7 @@ var _login = Module['_login'] = createExportWrapper('login');
 var _main = Module['_main'] = createExportWrapper('main');
 var ___errno_location = createExportWrapper('__errno_location');
 var _fflush = Module['_fflush'] = createExportWrapper('fflush');
+var _malloc = createExportWrapper('malloc');
 var _emscripten_stack_init = () => (_emscripten_stack_init = wasmExports['emscripten_stack_init'])();
 var _emscripten_stack_get_free = () => (_emscripten_stack_get_free = wasmExports['emscripten_stack_get_free'])();
 var _emscripten_stack_get_base = () => (_emscripten_stack_get_base = wasmExports['emscripten_stack_get_base'])();
@@ -1464,6 +1503,9 @@ var dynCall_jiji = Module['dynCall_jiji'] = createExportWrapper('dynCall_jiji');
 // === Auto-generated postamble setup entry stuff ===
 
 Module['cwrap'] = cwrap;
+Module['intArrayFromString'] = intArrayFromString;
+Module['stringToNewUTF8'] = stringToNewUTF8;
+Module['allocate'] = allocate;
 var missingLibrarySymbols = [
   'writeI53ToI64',
   'writeI53ToI64Clamped',
@@ -1532,7 +1574,6 @@ var missingLibrarySymbols = [
   'strLen',
   'reSign',
   'formatString',
-  'intArrayFromString',
   'intArrayToString',
   'AsciiToString',
   'stringToAscii',
@@ -1542,7 +1583,6 @@ var missingLibrarySymbols = [
   'UTF32ToString',
   'stringToUTF32',
   'lengthBytesUTF32',
-  'stringToNewUTF8',
   'registerKeyEventCallback',
   'maybeCStringToJsString',
   'findEventTarget',
@@ -1637,9 +1677,6 @@ var missingLibrarySymbols = [
   'SDL_unicode',
   'SDL_ttfContext',
   'SDL_audio',
-  'ALLOC_NORMAL',
-  'ALLOC_STACK',
-  'allocate',
   'writeStringToMemory',
   'writeAsciiToMemory',
 ];
@@ -1744,6 +1781,8 @@ var unexportedSymbols = [
   'IDBStore',
   'SDL',
   'SDL_gfx',
+  'ALLOC_NORMAL',
+  'ALLOC_STACK',
   'allocateUTF8',
   'allocateUTF8OnStack',
 ];

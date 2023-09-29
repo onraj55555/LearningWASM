@@ -21,8 +21,11 @@
 
         document.getElementById("submit").addEventListener("click", 
         () => {
-            let username = document.getElementById("uname").textContent
-            let password = document.getElementById("pass").textContent
+            let username = "jarno";// document.getElementById("uname").textContent
+            let password = "kaboom";// document.getElementById("pass").textContent
+
+            username = stringToNewUTF8(username)
+            password = stringToNewUTF8(password)
             console.log(api.login(username, password))
         })
     </script>
