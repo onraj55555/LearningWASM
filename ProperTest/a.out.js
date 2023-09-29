@@ -1446,6 +1446,8 @@ function dbg(text) {
       return ret;
     };
 
+
+
   
   /** @type {function(string, boolean=, number=)} */
   function intArrayFromString(stringy, dontAddNull, length) {
@@ -1455,15 +1457,6 @@ function dbg(text) {
     if (dontAddNull) u8array.length = numBytesWritten;
     return u8array;
   }
-
-  
-  
-  var stringToNewUTF8 = (str) => {
-      var size = lengthBytesUTF8(str) + 1;
-      var ret = _malloc(size);
-      if (ret) stringToUTF8(str, ret, size);
-      return ret;
-    };
 function checkIncomingModuleAPI() {
   ignoredModuleProp('fetchSettings');
 }
@@ -1484,6 +1477,8 @@ var wasmImports = {
 var wasmExports = createWasm();
 var ___wasm_call_ctors = createExportWrapper('__wasm_call_ctors');
 var _login = Module['_login'] = createExportWrapper('login');
+var _add_to_username = Module['_add_to_username'] = createExportWrapper('add_to_username');
+var _add_to_password = Module['_add_to_password'] = createExportWrapper('add_to_password');
 var _main = Module['_main'] = createExportWrapper('main');
 var ___errno_location = createExportWrapper('__errno_location');
 var _fflush = Module['_fflush'] = createExportWrapper('fflush');
@@ -1503,8 +1498,9 @@ var dynCall_jiji = Module['dynCall_jiji'] = createExportWrapper('dynCall_jiji');
 // === Auto-generated postamble setup entry stuff ===
 
 Module['cwrap'] = cwrap;
+Module['UTF8ToString'] = UTF8ToString;
+Module['stringToUTF8'] = stringToUTF8;
 Module['intArrayFromString'] = intArrayFromString;
-Module['stringToNewUTF8'] = stringToNewUTF8;
 Module['allocate'] = allocate;
 var missingLibrarySymbols = [
   'writeI53ToI64',
@@ -1583,6 +1579,7 @@ var missingLibrarySymbols = [
   'UTF32ToString',
   'stringToUTF32',
   'lengthBytesUTF32',
+  'stringToNewUTF8',
   'registerKeyEventCallback',
   'maybeCStringToJsString',
   'findEventTarget',
@@ -1742,9 +1739,7 @@ var unexportedSymbols = [
   'PATH_FS',
   'UTF8Decoder',
   'UTF8ArrayToString',
-  'UTF8ToString',
   'stringToUTF8Array',
-  'stringToUTF8',
   'lengthBytesUTF8',
   'UTF16Decoder',
   'stringToUTF8OnStack',

@@ -2,17 +2,34 @@
 #include <emscripten/emscripten.h>
 #include <string>
 
-std::string user;
+typedef struct User User;
+
+struct User {
+    std::string username;
+    std::string password;
+};
+
+User user;
 
 int main() {
     return 0;
 }
 
-EXTERN EMSCRIPTEN_KEEPALIVE const char * login(const char * username, const char * password) {
-    for(int i = 0; i < 5; i++) {
-        user += username[i];
-    }
-    user.append("Login: ").append(username).append(" ").append(password);
+EXTERN EMSCRIPTEN_KEEPALIVE const char * login() {
+    std::string msg("Login: ");
+
+    msg += user.username;
+    msg += ' ';
+    msg += user.password;
+
     //user.append("User logged in: ").append((int)*argv[0] - '0').append(" ").append((int)*argv[1] - '0');
-    return user.c_str();
+    return msg.c_str();
+}
+
+EXTERN EMSCRIPTEN_KEEPALIVE void add_to_username(char c) {
+    user.username += c;
+}
+
+EXTERN EMSCRIPTEN_KEEPALIVE void add_to_password(char c) {
+    user.password += c;
 }

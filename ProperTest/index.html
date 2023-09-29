@@ -14,19 +14,31 @@
         let api;
         Module.onRuntimeInitialized = async _ => {
             api = {
-                login: Module.cwrap('login', 'string', ['string', 'string']),
+                login: Module.cwrap('login', 'string', []),
+                add_username: Module.cwrap('add_to_username', 'null', ['number']),
+                add_password: Module.cwrap('add_to_password', 'null', ['number'])
             };
             //console.log(api.message());
         };
 
         document.getElementById("submit").addEventListener("click", 
         () => {
-            let username = "jarno";// document.getElementById("uname").textContent
-            let password = "kaboom";// document.getElementById("pass").textContent
+            let username = document.getElementById("uname").value
+            let password = document.getElementById("pass").value
 
-            username = stringToNewUTF8(username)
-            password = stringToNewUTF8(password)
-            console.log(api.login(username, password))
+            console.log("LOG: " + username + " " + password)
+
+            for(let i = 0; i < username.length; i++) {
+                api.add_username(username.charCodeAt(i));
+            }
+
+            for(let i = 0; i < password.length; i++) {
+                api.add_password(password.charCodeAt(i));
+            }
+
+            console.log(api.login());
+
+            //console.log(api.login(u_array, u_array.length, p_array, p_array.length))
         })
     </script>
 </body>
