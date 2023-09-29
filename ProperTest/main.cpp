@@ -9,6 +9,6 @@ int main() {
 }
 
 EXTERN EMSCRIPTEN_KEEPALIVE const char * login(int argc, char ** argv) {
-    user.append("User logged in: ").append(argv[0]).append(" ").append(argv[1]);
+    user.append("User logged in: ").append((int)argv[0]).append(" ").append((int)argv[1]);
     return user.c_str();
 }
