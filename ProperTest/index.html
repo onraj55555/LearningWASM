@@ -1,0 +1,30 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="a.out.js"></script>
+</head>
+<body>
+    <input id="uname" type="text" name="Username">
+    <input id="pass" type="text" name="Password">
+    <button id="submit">Login</button>
+
+    <script>
+        let api;
+        Module.onRuntimeInitialized = async _ => {
+            api = {
+                login: Module.cwrap('login', 'string', ['string', 'string']),
+            };
+            //console.log(api.message());
+        };
+
+        document.getElementById("submit").addEventListener("click", 
+        () => {
+            let username = document.getElementById("uname").textContent
+            let password = document.getElementById("pass").textContent
+            console.log(api.login(username, password))
+        })
+    </script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=, initial-scale=1.0">
+    <title>Document</title>
+    <script src="a.out.js"></script>
+</head>
+<body>
+    <button id="button">PRESS ME</button>
+    <script defer>
+        let api;
+        Module.onRuntimeInitialized = async _ => {
+            api = {
+                message: Module.cwrap('getAMessage', 'string', []),
+            };
+            //console.log(api.message());
+        };
+
+        document.getElementById("button").addEventListener("click",
+        () => {
+            console.log(api.message());
+        })
+    </script>
+</body>
+</html>
